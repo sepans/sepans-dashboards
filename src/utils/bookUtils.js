@@ -11,3 +11,7 @@ export const readBook = d => validDate(dateRead(d))
 export const validDate = d => d instanceof Date && !isNaN(d)
 export const hasRating = d => d["My Rating"] > 0
 export const initial = d => d?.split(' ').map(d => d[0]).join('.')
+export const fictionNonFiction = d =>  {
+    if (d["lc_class"] === 'N/A') return 'Unknown'
+    return d["lc_class"].startsWith("P") ? 'Fiction' : 'Non-fiction'
+}

@@ -20,9 +20,11 @@ import {
   readBook,
   hasRating,
   initial,
+  fictionNonFiction
 } from "./utils/bookUtils.js";
 // import { ClassificationLegend } from "./components/classificationLegend.js"
 import { range } from "npm:d3-array";
+import { rollups } from "npm:d3-array";
 ```
 
 ```js
@@ -49,7 +51,7 @@ const tipTitle = (d) => [
 
 ---
 
-## Some faviorates
+## Some favorites
 
 <br>
 
@@ -77,6 +79,11 @@ const TimelinePlot = (myWidth) => {
         x: (d) => dateRead(d),
         y: "lc_class",
         stroke: "lc_class",
+        fill: "lc_class",
+        fillOpacity: 0.4,
+        strokeOpacity: 0.6,
+        strokeWidth: 0.9,
+
         r: (d) => d["my_rate"],
         title: (d) =>
           [
@@ -93,7 +100,7 @@ const TimelinePlot = (myWidth) => {
     },
     r: {
       type: "pow",
-      range: [1, 5],
+      range: [1, 8],
     },
     x: {
       nice: true,
@@ -204,7 +211,12 @@ const PublicationPlot = (myWidth) =>
         x: dateRead,
         y: publicationDate, // "lc_class",// d => { /*console.log('d', d);*/ return parseInt(d["my_rate"])},
         // stroke: "lc_class",
-        stroke: "gray",
+        //stroke: "gray",
+        fill: fictionNonFiction,
+        stroke: fictionNonFiction,
+        fillOpacity: 0.4,
+        strokeOpacity: 0.6,
+        strokeWidth: 0.9,
         r: (d) => d["my_rate"],
         //fill: 'red',
         title: (d) => tipTitle(d),
@@ -216,14 +228,26 @@ const PublicationPlot = (myWidth) =>
       // nice: true,
       label: "first publication year",
       domain: [1800, d3.max(books, publicationDate)],
+      grid: true,
     },
     r: {
       type: "pow",
-      range: [1, 5],
+      range: [1, 6],
     },
     x: {
+      
       nice: true,
+
     },
+    color: {
+    legend: true,
+    // opacity: 0.5,
+    // scheme: 'ylorrd',
+    domain: ['Fiction', 'Non-fiction', 'Unknown'],
+    range: ['blue', 'green', 'gray'],
+    title: 'is fiction?'      
+    }
+    
   });
 ```
 
@@ -236,31 +260,70 @@ const publicationPlot = resize((width) => PublicationPlot(width));
 ---
 
 ```js
+  const booksGroupedByAuthor =  rollups(
+    books.filter(hasRating), 
+    authorScore,
+    d => d["Author"]) // .map(([key, value]) => value)
+
+  const authorsDomain = d3.sort(booksGroupedByAuthor, d => -d[1]).filter(d => d[1] > 5).map(d => d[0]).slice(0, 50)
+  // console.log(booksGroupedByAuthor, authorsDomain, authorsDomain.length)
+    
+```
+
+```js
+ const authorScore = v => v.length * d3.median(v, myRating) + v.length * 1.5 
+```
+
+## Authors
+
+```js
 Plot.plot({
   width: 900,
   marginBottom: 150,
   x: {
-    tickFormat: d => d,
+    //tickFormat: (d, i) => i % 2 === 0 ? d : '',
     tickRotate: 90,
     label: 'Author name',
     // domain: d3.sort(books.filter(hasRating), myRating).map(d => d["Author"]).reverse(), // sort by one rating
     //domain: books.filter(hasRating).map(d => d["Author"]),
+    domain: authorsDomain,
+    tickSize: 4,
+    // filter: d => { console.log(d); return 1}
+    // limit: 20
   },
   y: {
     label: '# of books by same author colored by rating',
     ticks: 8,
+
   },
   color: {
+    //legend: "swatches",
     legend: true,
+    type: 'ordinal',
     scheme: 'ylorrd',
-    domain: [1, 5],
+    domain: range(1, 6),
   },
   marks: [
     Plot.barY(books.filter(hasRating), 
           Plot.groupX(
-            {y: "count",
-             // filter: g => {console.log('filter', g); return g.length > 1}
-                //g => { return g.length },//d3.median(g, d => myRating(d))}
+            {
+              y: "count",
+             // sort: { y: 'x', reduce: d => { console.log('sort', d)}}
+
+            //filter: g => {console.log('filter', g); return g.length > 1},
+
+            // kind of works but not for authors with different book ratings
+              // filter: 
+               
+              //   (D) => { 
+              //      console.log('filter', D);
+              //      const books = D.flat()
+              //      console.log(books)
+              //      const weightedAvg = books.length * d3.median(books, myRating)
+              //      return weightedAvg > 4
+              //   }
+              // ,
+
             },
             {
               x: "Author",
@@ -269,7 +332,23 @@ Plot.plot({
               // y: d => parseInt(d["Number of Pages"]),
               title: (d) => `${d["Author"]} \n ${d["Title"]} \n rate: ${ratingStars(d)}\n\n`,
               //sort: {x: g => { console.log('sort', g); return g.length }},//d3.median(g, d => myRating(d))}},
-              sort: {x: 'y', reduce: "median", order: "descending", limit: 50},
+              // sort: d => { console.log(d);},
+              // sort: {x: 'y', reduce: "median", order: "descending", limit: 50},
+              sort: {
+                x: '-data',
+                reduce: D => authorScore(D.flat())
+                  
+              },
+              // filter: {
+              //   x: 'x',
+              //   reduce: (D) => { 
+              //      console.log('filter', D);
+              //      const books = D.flat()
+              //      const weightedAvg = books.length * d3.median(books, myRating)
+              //      return weightedAvg > 3 
+              //   }
+              // },
+
               tip: true,
               //filter: d => {console.log('filter', d); return true}
 
