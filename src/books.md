@@ -2,7 +2,9 @@
 title: Goodread books
 ---
 
-# Books
+# My books
+
+I have scraped the data from Goodreads.com. Goodreads no longer has an API and its data export no longer includes the useful data. The data is augmented using the OpenLibrary API to add more semantic information.
 
 ```js
 const books = FileAttachment("./data/books.json").json();
@@ -64,6 +66,11 @@ const tipTitle = (d) => [
         </a>`
     )}
 </div>
+
+<br>
+
+## List of all books
+
 
 ```js
   Inputs.table(books)
@@ -167,6 +174,7 @@ Plot.tip(
 };
 ```
 
+
 ```js
 const timelinePlot = resize((width) => TimelinePlot(width));
 ```
@@ -177,12 +185,16 @@ const timelinePlot = resize((width) => TimelinePlot(width));
 
 ---
 
-## Books by Library of Congress Classification over time
+## Books by Library of Congress classification over time
+
+Books read binned based on the Library of Congress classification category over time. Each row is one catagory (in case of fictions, sub category).
+
+<sm>LoC classification number is what being used in libraries to sort books and unlike ISBN that is just a code is assigned based on the book content.</sm>
 
 <br>
 
 ```js
-   const startYearInput = view(Inputs.range(yearRange, {value: 2018, step: 1,  label: 'Start year'}))
+   const startYearInput = view(Inputs.range(yearRange, {value: 2018, step: 1,  label: 'Books read since'}))
    // const gain = view(Inputs.range([0, 11], {value: 5, step: 0.1, label: "Gain"}))
 ```
 <br>
@@ -191,16 +203,22 @@ const timelinePlot = resize((width) => TimelinePlot(width));
 
 ## My rating vs Average rating
 
-
+```js
+   const showExtremes = view(Inputs.toggle({value: false, label: 'Only show large differences'}))
+   // const gain = view(Inputs.range([0, 11], {value: 5, step: 0.1, label: "Gain"}))
+```
+<br>
 
 ```js
+const ratingBooks = books.filter(myRating).filter(d => showExtremes ? Math.abs(myRating(d) - avgRating(d)) > 0.8 : true )
+
 const RatingPlot = (myWidth) =>
   Plot.plot({
     marginLeft: 10,
     marginBottom: 150,
     marks: [
       Plot.link(
-        books.filter(myRating), //.sort((a, b) => { return numberOfPages(b) - numberOfPages(a)}),
+        ratingBooks, 
         {
           x1: (d) => d["Title"], 
           x1: (d) => d["Title"], 
@@ -227,7 +245,7 @@ const RatingPlot = (myWidth) =>
     sort: "x",
     x: {
       domain: d3
-        .sort(books.filter(myRating), (d) => avgRating(d) - myRating(d))
+        .sort(ratingBooks, (d) => avgRating(d) - myRating(d))
         .map((d) => d["Title"]),
       tickFormat:  (d, i) => (width > 600 &&  i % 2 === 0) ? d.substring(0, 30) : null,
       tickRotate: 90,
@@ -254,7 +272,7 @@ const ratingPlot = resize((width) => RatingPlot(width));
 <br>
 
 ```js
-   const pubStartYearInput = view(Inputs.range(yearRange, {value: 2002, step: 1,  label: 'Start year'}))
+   const pubStartYearInput = view(Inputs.range(yearRange, {value: 2002, step: 1,  label: 'Books read since'}))
 ```
 <br>
 
@@ -356,7 +374,7 @@ const publicationPlot = resize((width) => PublicationPlot(width));
  const authorScore = v => v.length * d3.median(v, myRating) + v.length * 1.5 
 ```
 
-## Authors
+## Favorite Authors
 
 ```js
 Plot.plot({
