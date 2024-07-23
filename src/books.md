@@ -319,7 +319,7 @@ const PublicationPlot = (myWidth) =>
         //r: (d) => d["my_rate"],
         //fill: 'red',
         title: (d) => tipTitle(d),
-        tip: true,
+        //tip: true,
         dx: myWidth * 0.07
       }),      
     ],
