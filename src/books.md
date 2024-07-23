@@ -23,8 +23,8 @@ import {
   fictionNonFiction
 } from "./utils/bookUtils.js";
 // import { ClassificationLegend } from "./components/classificationLegend.js"
-import { range } from "npm:d3-array";
-import { rollups } from "npm:d3-array";
+import { range, rollups, min, max, mean, extent } from "npm:d3-array";
+// import { rollups } from "npm:d3-array";
 ```
 
 ```js
@@ -66,23 +66,50 @@ const tipTitle = (d) => [
 </div>
 
 ```js
+  Inputs.table(books)
+```
+
+```js
+const yearRange = extent(books.map(d => dateRead(d).getFullYear() ))
+```
+
+
+
+```js
+
+
+
+const timelineBooks = books.filter(readAfter(startYearInput - 1))
+
+const uniqueClasses = Array.from(new Set(timelineBooks.map(d => d['lc_class'])))
+const fClasses = d3.sort(uniqueClasses.filter(c => c.startsWith('P')))
+const nfClasses = d3.sort(uniqueClasses.filter(c => !c.startsWith('P')))
+const sortedClasses = nfClasses.concat(fClasses)
+
+
+const fictionCategories = timelineBooks.map(d => d['lc_class']).filter(d =>   d.startsWith('P'))
+
+
+
 const TimelinePlot = (myWidth) => {
   const plot = Plot.plot({
-    insetTop: 35,
-    marginBottom: 100,
+    // insetTop: 5,
+    marginBottom: 40,
     marginLeft: 50,
     width: myWidth,
-    height: 800,
-    caption: "recent books by category over time",
+    height: 600,
+
     marks: [
-      Plot.dot(books.filter(readAfter(2018)), {
+      Plot.tickX(timelineBooks, {
         x: (d) => dateRead(d),
         y: "lc_class",
+        //  y: "lc_number",
         stroke: "lc_class",
-        fill: "lc_class",
-        fillOpacity: 0.4,
-        strokeOpacity: 0.6,
-        strokeWidth: 0.9,
+        //fill: "lc_class",
+        //fillOpacity: 0.4,
+        strokeOpacity: myRating,
+        strokeWidth: 2,
+        opacity: 0.9,
 
         r: (d) => d["my_rate"],
         title: (d) =>
@@ -94,21 +121,43 @@ const TimelinePlot = (myWidth) => {
           ].join("\n\n"),
         tip: true,
       }),
+      // Plot.ruleX([0]),
+      Plot.ruleY([0]),
+      Plot.rect([0],{
+        x1: d => min(timelineBooks, dateRead),
+        x2: d => max(timelineBooks, dateRead),
+        y1: d => min(fictionCategories),
+        y2: d => max(fictionCategories),
+        //fill: '#555',
+        fill: '#f0ddb6',
+        opacity: 0.12,
+        stroke: '#dbab4b',
+        label: 'fiction',
+        tip: true,
+      }),
+Plot.tip(
+      [`Fiction`],
+      {x: d =>  min(timelineBooks, dateRead), y: d => min(fictionCategories), dy: -10, dx: 20, anchor: "bottom"}
+    ),      
+          
+
     ],
     y: {
-      tickFormat: (d) => d,
+      tickFormat: d =>  d,
+      domain: sortedClasses,
     },
-    r: {
-      type: "pow",
-      range: [1, 8],
-    },
+    // r: {
+    //   type: "pow",
+    //   range: [1, 8],
+    // },
     x: {
       nice: true,
     },
     color: {
-      // color: plot.scale("color"),
       legend: "swatches",
       columns: 3,
+      scheme: 'viridis',
+      domain: sortedClasses,
       tickFormat: (d) =>
         `${LocCategoryMap[d]?.substring(0, 70)} (${d})` || "N/A",
     },
@@ -132,14 +181,21 @@ const timelinePlot = resize((width) => TimelinePlot(width));
 
 <br>
 
+```js
+   const startYearInput = view(Inputs.range(yearRange, {value: 2018, step: 1,  label: 'Start year'}))
+   // const gain = view(Inputs.range([0, 11], {value: 5, step: 0.1, label: "Gain"}))
+```
+<br>
+
 <div class="w-full">${timelinePlot}</div>
 
 ## My rating vs Average rating
 
+
+
 ```js
 const RatingPlot = (myWidth) =>
   Plot.plot({
-    caption: "All five starts by page",
     marginLeft: 10,
     marginBottom: 150,
     marks: [
@@ -198,6 +254,14 @@ const ratingPlot = resize((width) => RatingPlot(width));
 <br>
 
 ```js
+   const pubStartYearInput = view(Inputs.range(yearRange, {value: 2002, step: 1,  label: 'Start year'}))
+```
+<br>
+
+
+```js
+const pubBooks = books.filter(readBook).filter(readAfter(pubStartYearInput - 1))
+
 const PublicationPlot = (myWidth) =>
   Plot.plot({
     // insetTop: 35,
@@ -205,9 +269,8 @@ const PublicationPlot = (myWidth) =>
     // marginLeft: 30,
     width: myWidth,
     height: 800,
-    // caption: 'recent books by category over time',
     marks: [
-      Plot.dot(books.filter(readBook), {
+      Plot.dot(pubBooks, {
         x: dateRead,
         y: publicationDate, // "lc_class",// d => { /*console.log('d', d);*/ return parseInt(d["my_rate"])},
         // stroke: "lc_class",
@@ -232,7 +295,7 @@ const PublicationPlot = (myWidth) =>
     },
     r: {
       type: "pow",
-      range: [1, 6],
+      range: [1, 8],
     },
     x: {
       
@@ -240,12 +303,12 @@ const PublicationPlot = (myWidth) =>
 
     },
     color: {
-    legend: true,
-    // opacity: 0.5,
-    // scheme: 'ylorrd',
-    domain: ['Fiction', 'Non-fiction', 'Unknown'],
-    range: ['blue', 'green', 'gray'],
-    title: 'is fiction?'      
+      legend: true,
+      // opacity: 0.5,
+      // scheme: 'ylorrd',
+      domain: ['Fiction', 'Non-fiction', 'Unknown'],
+      range: ['blue', 'green', 'gray'],
+      title: 'is fiction?'      
     }
     
   });
