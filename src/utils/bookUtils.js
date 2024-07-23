@@ -6,7 +6,7 @@ export const readAfter = (year) => {
 }
 
 export const avgRating = (d) =>  parseFloat(d['Average Rating'])
-export const publicationDate = d => parseInt(d["Original Publication Year"])
+export const publicationDate = d => parseInt(d["Year Published"])
 export const readBook = d => validDate(dateRead(d))
 export const validDate = d => d instanceof Date && !isNaN(d)
 export const hasRating = d => d["My Rating"] > 0

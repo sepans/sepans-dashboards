@@ -5,16 +5,42 @@ import { json } from "d3-fetch"
 
 import { LocCategoryMap } from "../utils/locCategoryMap.js"
 
+const CSV_KEY_MAP = {
+  "title": "Title",
+  "author": "Author",
+  "isbn": "ISBN",
+  "isbn13": "ISBN13",
+  "num_pages": "Number of Pages",
+  "avg_rating": "Average Rating",
+  "rating": "My Rating",
+  "date_pub": "Year Published",
+  "date_read": "Date Read",
+  "date_added": "Date Added",
+}
 
- const goodreadsDataRaw = readFileSync("src/data/goodreads.csv",  "utf-8")
+
+ // const goodreadsDataRaw = readFileSync("src/data/goodreads.csv",  "utf-8")
+ const goodreadsDataRaw = readFileSync("src/data/goodreads-scrape.csv",  "utf-8")
 
  const noLocListRaw = readFileSync("src/data/no-loc-list.csv",  "utf-8")
 
 
 
 
-const goodreadsData =  csvParse(goodreadsDataRaw)
+let goodreadsData =  csvParse(goodreadsDataRaw)
 const noLocList =  csvParse(noLocListRaw)
+
+//console.log(goodreadsData)
+
+goodreadsData = goodreadsData.map(item => {
+  const newItem = {}
+  Object.keys(item).forEach(key => {
+    const newKey = CSV_KEY_MAP[key] 
+    newItem[newKey] = item[key]
+  })
+  //console.log(newItem)
+  return newItem
+})
 
 
 const noLocMap = new Map(noLocList.map(e => [e["title"].toLowerCase(), e["loc"]]))
@@ -24,6 +50,8 @@ const openLibraryApi = (isbn) => `https://openlibrary.org/api/books?bibkeys=ISBN
 const extractIsbn = (d) => d?.ISBN?.replace(/[\=]*\"/g,'')
 const extractLICClass = (code) => code?.match(/(^[A-Z]+)+/i)?.[0] || 'N/A'
 const dateRead = d => new Date(d["Date Read"] || d["Date Added"])
+
+
 
 let olBookData
 try {
@@ -58,6 +86,7 @@ try {
         my_rate: grData["My Rating"],          
         lc_class,
         lc_class_name,
+        //lc_number: locNumber,
         
       }
       // if(grData['Author'].includes('Cixin')) {
