@@ -1,20 +1,20 @@
 Book Id,Title,Author,Author l-f,Additional Authors,ISBN,ISBN13,My Rating,Average Rating,Publisher,Binding,Number of Pages,Year Published,Original Publication Year,Date Read,Date Added,Bookshelves,Bookshelves with positions,Exclusive Shelf,My Review,Spoiler,Private Notes,Read Count,Owned Copies
-8524528,The Conspiracy Against the Human Race,Thomas Ligotti,"Ligotti, Thomas",Ray Brassier,"=""098242969X""","=""9780982429693""",4,4.06,Hippocampus Press,Hardcover,240,2010,2011,,2023/06/25,,,read,,,,1,0
-60018649,Afterlives,Abdulrazak Gurnah,"Gurnah, Abdulrazak",,"=""059354188X""","=""9780593541883""",3,3.80,Riverhead Books,Hardcover,309,2022,2020,,2023/06/04,,,read,,,,1,0
+8524528,The Conspiracy Against the Human Race,Thomas Ligotti,"Ligotti, Thomas",Ray Brassier,"=""098242969X""","=""9780982429693""",4,4.06,Hippocampus Press,Hardcover,240,2010,2011,2023/06/25,2023/06/25,,,read,,,,1,0
+60018649,Afterlives,Abdulrazak Gurnah,"Gurnah, Abdulrazak",,"=""059354188X""","=""9780593541883""",3,3.80,Riverhead Books,Hardcover,309,2022,2020,2023/06/04,2023/06/04,,,read,,,,1,0
 168646,Slaughterhouse-Five,Kurt Vonnegut Jr.,"Jr., Kurt Vonnegut",,"=""0440180295""","=""9780440180296""",5,4.09,Dell,Mass Market Paperback,215,1991,1969,2004/03/01,2010/09/20,,,read,,,,1,0
 274186,The Remains of the Day,Kazuo Ishiguro,"Ishiguro, Kazuo",,"=""0679731725""","=""9780679731726""",4,4.14,Vintage Books,Paperback,245,1990,1989,2020/05/28,2020/05/28,,,read,,,,1,0
-56269264,The Dawn of Everything: A New History of Humanity,David Graeber,"Graeber, David",David Wengrow,"=""0374157359""","=""9780374157357""",5,4.20,"Farrar, Straus and Giroux",Hardcover,692,2021,2021,,2023/05/15,,,read,,,,1,0
-58470813,Scattered All Over the Earth,Yōko Tawada,"Tawada, Yōko",Margaret Mitsutani,"=""0811229289""","=""9780811229289""",5,3.39,New Directions,Paperback,256,2022,2018,,2023/04/24,,,read,,,,1,0
-13641208,Tenth of December,George Saunders,"Saunders, George",,"=""0812993802""","=""9780812993806""",3,3.98,Random House,Hardcover,251,2013,2013,,2023/01/21,,,read,,,,1,0
-25333047,Pond,Claire-Louise Bennett,"Bennett, Claire-Louise",,"=""1906539464""","=""9781906539467""",4,3.54,The Stinging Fly Press,Hardcover,148,2015,2015,,2023/04/24,,,read,,,,1,0
-58386758,Checkout 19,Claire-Louise Bennett,"Bennett, Claire-Louise",,"=""0593420497""","=""9780593420492""",5,3.24,Riverhead Books,Hardcover,288,2022,2021,,2023/03/27,,,read,,,,1,0
-1199688,Babel-17,Samuel R. Delany,"Delany, Samuel R.",,"=""0839823282""","=""9780839823285""",3,3.73,Gregg Press,Hardcover,192,1978,1966,,2023/03/19,,,read,,,,1,0
-11455485,Satantango,László Krasznahorkai,"Krasznahorkai, László",George Szirtes,"=""0811217345""","=""9780811217347""",5,4.12,New Directions,Hardcover,274,2012,1985,,2023/02/18,,,read,,,,1,0
-11991,The Fall,Albert Camus,"Camus, Albert",Justin O'Brien,"=""0679720227""","=""9780679720225""",5,4.04,Vintage Books,Paperback,147,1991,1956,,2023/02/02,,,read,,,,1,0
-30375706,Things We Lost in the Fire,Mariana Enríquez,"Enríquez, Mariana",,"=""045149511X""","=""9780451495112""",5,4.07,Hogarth,Hardcover,192,2017,2016,,2023/01/15,,,read,,,,1,0
+56269264,The Dawn of Everything: A New History of Humanity,David Graeber,"Graeber, David",David Wengrow,"=""0374157359""","=""9780374157357""",5,4.20,"Farrar, Straus and Giroux",Hardcover,692,2021,2021,2023/05/15,2023/05/15,,,read,,,,1,0
+58470813,Scattered All Over the Earth,Yōko Tawada,"Tawada, Yōko",Margaret Mitsutani,"=""0811229289""","=""9780811229289""",5,3.39,New Directions,Paperback,256,2022,2018,2023/04/24,2023/04/24,,,read,,,,1,0
+13641208,Tenth of December,George Saunders,"Saunders, George",,"=""0812993802""","=""9780812993806""",3,3.98,Random House,Hardcover,251,2013,2013,2023/01/21,2023/01/21,,,read,,,,1,0
+25333047,Pond,Claire-Louise Bennett,"Bennett, Claire-Louise",,"=""1906539464""","=""9781906539467""",4,3.54,The Stinging Fly Press,Hardcover,148,2015,2015,2023/04/24,2023/04/24,,,read,,,,1,0
+58386758,Checkout 19,Claire-Louise Bennett,"Bennett, Claire-Louise",,"=""0593420497""","=""9780593420492""",5,3.24,Riverhead Books,Hardcover,288,2022,2021,2023/03/27,2023/03/27,,,read,,,,1,0
+1199688,Babel-17,Samuel R. Delany,"Delany, Samuel R.",,"=""0839823282""","=""9780839823285""",3,3.73,Gregg Press,Hardcover,192,1978,1966,2023/03/19,2023/03/19,,,read,,,,1,0
+11455485,Satantango,László Krasznahorkai,"Krasznahorkai, László",George Szirtes,"=""0811217345""","=""9780811217347""",5,4.12,New Directions,Hardcover,274,2012,1985,2023/02/18,2023/02/18,,,read,,,,1,0
+11991,The Fall,Albert Camus,"Camus, Albert",Justin O'Brien,"=""0679720227""","=""9780679720225""",5,4.04,Vintage Books,Paperback,147,1991,1956,2023/02/02,2023/02/02,,,read,,,,1,0
+30375706,Things We Lost in the Fire,Mariana Enríquez,"Enríquez, Mariana",,"=""045149511X""","=""9780451495112""",5,4.07,Hogarth,Hardcover,192,2017,2016,2023/01/15,2023/01/15,,,read,,,,1,0
 48845192,Good Economics for Hard Times : Better Answers to Our Biggest Problems,Abhijit V. Banerjee,"Banerjee, Abhijit V.",Esther Duflo,"=""9353450705""","=""9789353450700""",5,4.24,Juggernaut,Hardcover,416,2019,2019,2021/05/25,2021/04/22,,,read,,,,1,0
-7791929,The Box: Tales from the Darkroom,Günter Grass,"Grass, Günter",Krishna Winston,"=""0547245033""","=""9780547245034""",4,3.15,Houghton Mifflin Harcourt,Hardcover,194,2010,2008,,2023/01/09,,,read,,,,1,0
-58890783,Either/Or,Elif Batuman,"Batuman, Elif",,"=""0525557598""","=""9780525557593""",3,4.08,Penguin Press,Hardcover,368,2022,2022,,2022/11/01,,,read,,,,1,0
+7791929,The Box: Tales from the Darkroom,Günter Grass,"Grass, Günter",Krishna Winston,"=""0547245033""","=""9780547245034""",4,3.15,Houghton Mifflin Harcourt,Hardcover,194,2010,2008,2023/01/09,2023/01/09,,,read,,,,1,0
+58890783,Either/Or,Elif Batuman,"Batuman, Elif",,"=""0525557598""","=""9780525557593""",3,4.08,Penguin Press,Hardcover,368,2022,2022,2022/11/01,2022/11/01,,,read,,,,1,0
 52222275,Exhalation,Ted Chiang,"Chiang, Ted",,"=""1101947888""","=""9781101947883""",5,4.28,Alfred A. Knopf,Hardcover,350,2019,2019,2020/05/11,2020/04/09,,,read,,,,1,0
 2909769,The Reader,Bernhard Schlink,"Schlink, Bernhard",,"=""0307454894""","=""9780307454898""",3,3.77,Vintage,Paperback,218,2008,1995,2022/02/04,2022/02/05,,,read,,,,1,0
 17879,Crime and Punishment,Fyodor Dostoevsky,"Dostoevsky, Fyodor","Richard Pevear, Larissa Volokhonsky","=""0679420290""","=""9780679420293""",5,4.26,Random House,Hardcover,564,1993,1866,2020/01/01,2020/04/09,,,read,,,,1,0
@@ -69,7 +69,7 @@ Book Id,Title,Author,Author l-f,Additional Authors,ISBN,ISBN13,My Rating,Average
 36442813,The Order of Time,Carlo Rovelli,"Rovelli, Carlo",,"=""073521610X""","=""9780735216105""",5,4.12,Riverhead Books,Hardcover,240,2018,2017,2020/09/27,2020/09/28,,,read,,,,1,0
 12137,Buried Child,Sam Shepard,"Shepard, Sam",,"=""0307274977""","=""9780307274977""",4,3.86,Vintage,Paperback,120,2006,1979,2020/08/28,2020/08/28,,,read,,,,1,0
 36130507,Tyll,Daniel Kehlmann,"Kehlmann, Daniel",,"=""3498035673""","=""9783498035679""",4,3.94,Rowohlt,Hardcover,474,2017,2017,2020/08/24,2020/08/27,,,read,,,,1,0
-153747,"Moby-Dick or, the Whale",Herman Melville,"Melville, Herman","Andrew Delbanco, Tom Quirk, William Hootkins, Rockwell Kent, Anton Lomaev","=""0142437247""","=""9780142437247""",5,3.53,Penguin Classics ,Paperback,654,2003,1851,2020/08/20,2020/08/20,,,read,,,,1,0
+153747,"Moby-Dick or, the Whale",Herman Melville,"Melville, Herman","Andrew Delbanco, Tom Quirk, William Hootkins, Rockwell Kent, Anton Lomaev","=""0142437247""","=""9780142437247""",5,3.53,"Penguin Classics ",Paperback,654,2003,1851,2020/08/20,2020/08/20,,,read,,,,1,0
 69091,The Clown,Heinrich Böll,"Böll, Heinrich","Leila Vennewitz, Laureano Xoaquín Araujo Cardalda","=""014018726X""","=""9780140187267""",4,3.95,Penguin Group USA,Paperback,272,1994,1963,2002/09/01,2007/11/04,,,read,,,,1,0
 5107,The Catcher in the Rye,J.D. Salinger,"Salinger, J.D.",,"=""0316769177""","=""9780316769174""",2,3.80,Back Bay Books,Paperback,277,2001,1951,2002/03/01,2007/11/03,,,read,,,,1,0
 27558,Group Portrait with Lady,Heinrich Böll,"Böll, Heinrich",Leila Vennewitz,"=""0140187278""","=""9780140187274""",4,3.92,Penguin,Paperback,416,1994,1971,2002/09/01,2007/11/16,,,read,,,,1,0
