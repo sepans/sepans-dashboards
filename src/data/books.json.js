@@ -1,6 +1,5 @@
- import { readFileSync } from "fs"
+import { readFileSync } from "fs"
 import { csvParse } from "d3-dsv"
-import { json } from "d3-fetch"
 
 
 import { LocCategoryMap } from "../utils/locCategoryMap.js"
@@ -76,6 +75,10 @@ try {
       if(!locNumber) {
         // console.log(grData["Title"], noLocMap.get(grData["Title"].toLowerCase()))
         locNumber = noLocMap.get(grData["Title"].toLowerCase())
+        // if(!locNumber) {
+        //   console.log(grData["Title"])
+          
+        // }
       }
       
       let lc_class = extractLICClass(locNumber)
@@ -89,9 +92,7 @@ try {
         //lc_number: locNumber,
         
       }
-      // if(grData['Author'].includes('Cixin')) {
-      //   console.log(grData["Title"], lc_class)
-      // }
+
 
      
       return {...grData, ...extracted, ...openLibraryData}
