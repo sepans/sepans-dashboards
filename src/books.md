@@ -28,7 +28,7 @@ import { range, rollups, min, max, mean, extent } from "npm:d3-array";
 ```
 
 ```js
-display(books[0]);
+// display(books[0]);
 ```
 
 ```js
@@ -266,7 +266,7 @@ const PublicationPlot = (myWidth) =>
   Plot.plot({
     // insetTop: 35,
     // marginBottom: 100,
-    // marginLeft: 30,
+    //marginLeft: 50,
     width: myWidth,
     height: 800,
     marks: [
@@ -284,7 +284,26 @@ const PublicationPlot = (myWidth) =>
         //fill: 'red',
         title: (d) => tipTitle(d),
         tip: true,
+        //dx: 20,
       }),
+      Plot.dot(pubBooks, {
+        x: d => max(pubBooks, dateRead),
+        //x2: d => max(pubBooks, dateRead),
+        y: publicationDate, // "lc_class",// d => { /*console.log('d', d);*/ return parseInt(d["my_rate"])},
+        // stroke: "lc_class",
+        //stroke: "gray",
+        fill: fictionNonFiction,
+        //stroke: fictionNonFiction,
+        fillOpacity: 0.6,
+        strokeOpacity: 0.5,
+        strokeWidth: 2,
+        r: 3,
+        //r: (d) => d["my_rate"],
+        //fill: 'red',
+        title: (d) => tipTitle(d),
+        tip: true,
+        dx: myWidth * 0.07
+      }),      
     ],
     y: {
       tickFormat: (d) => `${d}`,
