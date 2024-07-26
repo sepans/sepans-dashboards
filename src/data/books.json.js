@@ -99,7 +99,7 @@ try {
     }))
 }
 catch(e) {
-  console.log('Exception !!!! ', e)
+  console.log('Exception!!!!! ', e)
 }
 
 process.stdout.write(JSON.stringify(olBookData))

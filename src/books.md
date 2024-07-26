@@ -365,7 +365,7 @@ const publicationPlot = resize((width) => PublicationPlot(width));
     authorScore,
     d => d["Author"]) // .map(([key, value]) => value)
 
-  const authorsDomain = d3.sort(booksGroupedByAuthor, d => -d[1]).filter(d => d[1] > 5).map(d => d[0]).slice(0, 50)
+  const authorsDomain = d3.sort(booksGroupedByAuthor, d => -d[1]).filter(d => d[1] > 6).map(d => d[0])//.slice(0, 50)
   // console.log(booksGroupedByAuthor, authorsDomain, authorsDomain.length)
     
 ```
