@@ -89,7 +89,7 @@ try {
         my_rate: grData["My Rating"],          
         lc_class,
         lc_class_name,
-        //lc_number: locNumber,
+        locNumber,
         
       }
 

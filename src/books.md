@@ -86,9 +86,11 @@ view(
       "Number of Pages",
       "My Rating",
       "Average Rating",
-      "Year Published",
       "Date Read",
+      "locNumber",
+      "Year Published",
       "lc_class_name",
+      
     ],
     format: {
       "My Rating": (d) => ratingStars(d, (d) => d),
@@ -97,10 +99,11 @@ view(
     },
     header: {
       "Number of Pages": "# pages",
-      lc_class_name: "LOC class",
+      lc_class_name: "LoC class",
       "Average Rating": "Avg. rate",
       "Year Published": "Pub. year",
       "Date Read": "Month read",
+      "locNumber": "LoC #"
     },
   })
 );
