@@ -2,9 +2,9 @@
 title: Goodread books
 ---
 
-# My books
+# books
 
-I have scraped the data from Goodreads.com. Goodreads no longer has an API and its data export no longer includes the useful data. The data is augmented using the OpenLibrary API to add more semantic information.
+I scraped the data from Goodreads.com. Goodreads no longer has an API and its data export no longer includes the book data. The data is augmented using the OpenLibrary API to add more semantic information.
 
 ```js
 const books = FileAttachment("./data/books.json").json();
@@ -22,11 +22,9 @@ import {
   readBook,
   hasRating,
   initial,
-  fictionNonFiction
+  fictionNonFiction,
 } from "./utils/bookUtils.js";
-// import { ClassificationLegend } from "./components/classificationLegend.js"
 import { range, rollups, min, max, mean, extent } from "npm:d3-array";
-// import { rollups } from "npm:d3-array";
 ```
 
 ```js
@@ -34,31 +32,38 @@ import { range, rollups, min, max, mean, extent } from "npm:d3-array";
 ```
 
 ```js
-const ratingStars = (d) =>
-  range(0, myRating(d))
+const ratingStars = (d, selector = myRating) =>
+  range(0, selector(d))
     .map((s) => "★")
-    .concat(range(myRating(d), 5).map((s) => "☆"))
+    .concat(range(selector(d), 5).map((s) => "☆"))
     .join("");
 ```
 
 ```js
-const tipTitle = (d) => [
-            d["Title"],
-            `by ${d["Author"]}`,
-            publicationDate(d),
-            d["lc_class_name"],
-            ratingStars(d),
-          ].join("\n\n")
+const tipTitle = (d) =>
+  [
+    d["Title"],
+    `by ${d["Author"]}`,
+    publicationDate(d),
+    d["lc_class_name"],
+    ratingStars(d),
+  ].join("\n\n");
 ```
 
 ---
 
-## Some favorites
+## Recent favorites
 
 <br>
 
-<div style="overflow: scroll; max-height: 330px">
-    ${books.filter(d => myRating(d) === 5).filter(coverImage).map(book => 
+```js
+const favYearInput = view(
+  Inputs.range(yearRange, { value: 2021, step: 1, label: "Books read since" })
+);
+```
+
+<div style="overflow: scroll; max-height: 430px">
+    ${books.filter(d => myRating(d) === 5).filter(coverImage).filter(readAfter(favYearInput - 1)).map(book => 
         html`<a href="${book.url}" target="_blank">
             <img src="${coverImage(book)}" 
             alt="${book["Title"]} by ${book["Author"]}" 
@@ -71,32 +76,50 @@ const tipTitle = (d) => [
 
 ## List of all books
 
-
 ```js
-  Inputs.table(books)
+view(
+  Inputs.table(books, {
+    columns: [
+      "Title",
+      "Author",
+      "Number of Pages",
+      "My Rating",
+      "Average Rating",
+      "Year Published",
+      "Date Read",
+      "lc_class_name",
+    ],
+    format: {
+      "My Rating": (d) => ratingStars(d, (d) => d),
+      "Year Published": (d) => new Date(d).getFullYear(),
+    },
+    header: {
+      "Number of Pages": "# pages",
+      lc_class_name: "LOC class",
+      "Average Rating": "Avg. rate",
+      "Year Published": "Pub. year",
+    },
+  })
+);
 ```
 
 ```js
-const yearRange = extent(books.map(d => dateRead(d).getFullYear() ))
+const yearRange = extent(books.map((d) => dateRead(d).getFullYear()));
 ```
 
-
-
 ```js
+const timelineBooks = books.filter(readAfter(startYearInput - 1));
 
+const uniqueClasses = Array.from(
+  new Set(timelineBooks.map((d) => d["lc_class"]))
+);
+const fClasses = d3.sort(uniqueClasses.filter((c) => c.startsWith("P")));
+const nfClasses = d3.sort(uniqueClasses.filter((c) => !c.startsWith("P")));
+const sortedClasses = nfClasses.concat(fClasses);
 
-
-const timelineBooks = books.filter(readAfter(startYearInput - 1))
-
-const uniqueClasses = Array.from(new Set(timelineBooks.map(d => d['lc_class'])))
-const fClasses = d3.sort(uniqueClasses.filter(c => c.startsWith('P')))
-const nfClasses = d3.sort(uniqueClasses.filter(c => !c.startsWith('P')))
-const sortedClasses = nfClasses.concat(fClasses)
-
-
-const fictionCategories = timelineBooks.map(d => d['lc_class']).filter(d =>   d.startsWith('P'))
-
-
+const fictionCategories = timelineBooks
+  .map((d) => d["lc_class"])
+  .filter((d) => d.startsWith("P"));
 
 const TimelinePlot = (myWidth) => {
   const plot = Plot.plot({
@@ -130,27 +153,28 @@ const TimelinePlot = (myWidth) => {
       }),
       // Plot.ruleX([0]),
       Plot.ruleY([0]),
-      Plot.rect([0],{
-        x1: d => min(timelineBooks, dateRead),
-        x2: d => max(timelineBooks, dateRead),
-        y1: d => min(fictionCategories),
-        y2: d => max(fictionCategories),
+      Plot.rect([0], {
+        x1: (d) => min(timelineBooks, dateRead),
+        x2: (d) => max(timelineBooks, dateRead),
+        y1: (d) => min(fictionCategories),
+        y2: (d) => max(fictionCategories),
         //fill: '#555',
-        fill: '#f0ddb6',
+        fill: "#f0ddb6",
         opacity: 0.12,
-        stroke: '#dbab4b',
-        label: 'fiction',
+        stroke: "#dbab4b",
+        label: "fiction",
         tip: true,
       }),
-Plot.tip(
-      [`Fiction`],
-      {x: d =>  min(timelineBooks, dateRead), y: d => min(fictionCategories), dy: -10, dx: 20, anchor: "bottom"}
-    ),      
-          
-
+      Plot.tip([`Fiction`], {
+        x: (d) => min(timelineBooks, dateRead),
+        y: (d) => min(fictionCategories),
+        dy: -10,
+        dx: 20,
+        anchor: "bottom",
+      }),
     ],
     y: {
-      tickFormat: d =>  d,
+      tickFormat: (d) => d,
       domain: sortedClasses,
     },
     // r: {
@@ -163,7 +187,7 @@ Plot.tip(
     color: {
       legend: "swatches",
       columns: 3,
-      scheme: 'viridis',
+      scheme: "viridis",
       domain: sortedClasses,
       tickFormat: (d) =>
         `${LocCategoryMap[d]?.substring(0, 70)} (${d})` || "N/A",
@@ -173,7 +197,6 @@ Plot.tip(
   return plot;
 };
 ```
-
 
 ```js
 const timelinePlot = resize((width) => TimelinePlot(width));
@@ -194,9 +217,11 @@ Books read binned based on the Library of Congress classification category over 
 <br>
 
 ```js
-   const startYearInput = view(Inputs.range(yearRange, {value: 2018, step: 1,  label: 'Books read since'}))
-   // const gain = view(Inputs.range([0, 11], {value: 5, step: 0.1, label: "Gain"}))
+const startYearInput = view(
+  Inputs.range(yearRange, { value: 2018, step: 1, label: "Books read since" })
+);
 ```
+
 <br>
 
 <div class="w-full">${timelinePlot}</div>
@@ -204,55 +229,65 @@ Books read binned based on the Library of Congress classification category over 
 ## My rating vs Average rating
 
 ```js
-   const showExtremes = view(Inputs.toggle({value: false, label: 'Only show large differences'}))
-   // const gain = view(Inputs.range([0, 11], {value: 5, step: 0.1, label: "Gain"}))
+const showExtremes = view(
+  Inputs.toggle({ value: false, label: "Only show large differences" })
+);
 ```
+
 <br>
 
 ```js
-const ratingBooks = books.filter(myRating).filter(d => showExtremes ? Math.abs(myRating(d) - avgRating(d)) > 0.8 : true )
+const ratingDiff = (d) => myRating(d) - avgRating(d);
+```
+
+```js
+const ratingBooks = books
+  .filter(myRating)
+  .filter((d) => (showExtremes ? Math.abs(ratingDiff(d)) > 0.8 : true));
 
 const RatingPlot = (myWidth) =>
   Plot.plot({
-    marginLeft: 10,
+    marginLeft: 25,
     marginBottom: 150,
     marks: [
-      Plot.link(
-        ratingBooks, 
-        {
-          x1: (d) => d["Title"], 
-          x1: (d) => d["Title"], 
-          y2: (d) => myRating(d) - avgRating(d),
-          y1: 0,
-          stroke: (d) => (myRating(d) - avgRating(d) < 0 ? "red" : "green"),
-          markerEnd: "arrow",
-          //   stroke: 'black',
-          strokeWidth: 1,
-          thresholds: 10,
-          title: (d) =>
-            `${d["Title"]} \n ${d["Author"]} \n My rate: ${myRating(
-              d
-            )} \n avg rate: ${avgRating(d)} \n diff ${d3.format("+.1f")(
-              myRating(d) - avgRating(d)
-            )}`,
-          opacity: 0.6,
-          label: false,
-          tip: true,
-          
-        }
-      ),
+      Plot.link(ratingBooks, {
+        x1: (d) => d["Title"],
+        x1: (d) => d["Title"],
+        y2: ratingDiff,
+        y1: 0,
+        stroke: (d) => (ratingDiff(d) < 0 ? "red" : "green"),
+        markerEnd: "arrow",
+        strokeWidth: 1,
+        thresholds: 10,
+        tickFormat: (d, i) => (myWidth > 500 || i % 2 === 0 ? d : ""),
+        title: (d) =>
+          `${d["Title"]} \n ${d["Author"]} \n My rate: ${myRating(
+            d
+          )} \n avg rate: ${avgRating(d)} \n diff ${d3.format("+.1f")(
+            ratingDiff(d)
+          )}`,
+        opacity: 0.6,
+        label: false,
+        tip: true,
+      }),
     ],
     sort: "x",
     x: {
       domain: d3
-        .sort(ratingBooks, (d) => avgRating(d) - myRating(d))
+        .sort(ratingBooks, (d) => -ratingDiff(d))
         .map((d) => d["Title"]),
-      tickFormat:  (d, i) => (width > 600 &&  i % 2 === 0) ? d.substring(0, 30) : null,
+      tickFormat: (d, i) =>
+        i % (myWidth > 800 || showExtremes ? 2 : 4) === 0
+          ? d.substring(0, 30)
+          : null,
       tickRotate: 90,
       ticks: 10,
     },
     y: {
-      domain: [-4, 4],
+      domain: extent(ratingBooks, ratingDiff).map((d) =>
+        d > 0 ? Math.ceil(d) : Math.floor(d)
+      ),
+      grid: true,
     },
 
     width: myWidth,
@@ -272,27 +307,26 @@ const ratingPlot = resize((width) => RatingPlot(width));
 <br>
 
 ```js
-   const pubStartYearInput = view(Inputs.range(yearRange, {value: 2002, step: 1,  label: 'Books read since'}))
+const pubStartYearInput = view(
+  Inputs.range(yearRange, { value: 2002, step: 1, label: "Books read since" })
+);
 ```
+
 <br>
 
-
 ```js
-const pubBooks = books.filter(readBook).filter(readAfter(pubStartYearInput - 1))
+const pubBooks = books
+  .filter(readBook)
+  .filter(readAfter(pubStartYearInput - 1));
 
 const PublicationPlot = (myWidth) =>
   Plot.plot({
-    // insetTop: 35,
-    // marginBottom: 100,
-    //marginLeft: 50,
     width: myWidth,
     height: 800,
     marks: [
       Plot.dot(pubBooks, {
         x: dateRead,
-        y: publicationDate, // "lc_class",// d => { /*console.log('d', d);*/ return parseInt(d["my_rate"])},
-        // stroke: "lc_class",
-        //stroke: "gray",
+        y: publicationDate,
         fill: fictionNonFiction,
         stroke: fictionNonFiction,
         fillOpacity: 0.4,
@@ -305,23 +339,17 @@ const PublicationPlot = (myWidth) =>
         //dx: 20,
       }),
       Plot.dot(pubBooks, {
-        x: d => max(pubBooks, dateRead),
-        //x2: d => max(pubBooks, dateRead),
-        y: publicationDate, // "lc_class",// d => { /*console.log('d', d);*/ return parseInt(d["my_rate"])},
-        // stroke: "lc_class",
-        //stroke: "gray",
+        x: (d) => max(pubBooks, dateRead),
+        y: publicationDate,
         fill: fictionNonFiction,
         //stroke: fictionNonFiction,
         fillOpacity: 0.6,
-        strokeOpacity: 0.5,
-        strokeWidth: 2,
-        r: 3,
-        //r: (d) => d["my_rate"],
-        //fill: 'red',
+        // strokeOpacity: 0.5,
+        // strokeWidth: 2,
+        r: 2.5,
         title: (d) => tipTitle(d),
-        //tip: true,
-        dx: myWidth * 0.07
-      }),      
+        dx: myWidth * 0.075,
+      }),
     ],
     y: {
       tickFormat: (d) => `${d}`,
@@ -335,19 +363,14 @@ const PublicationPlot = (myWidth) =>
       range: [1, 8],
     },
     x: {
-      
       nice: true,
-
     },
     color: {
       legend: true,
-      // opacity: 0.5,
-      // scheme: 'ylorrd',
-      domain: ['Fiction', 'Non-fiction', 'Unknown'],
-      range: ['blue', 'green', 'gray'],
-      title: 'is fiction?'      
-    }
-    
+      domain: ["Fiction", "Non-fiction", "Unknown"],
+      range: ["blue", "green", "gray"],
+      title: "is fiction?",
+    },
   });
 ```
 
@@ -359,103 +382,76 @@ const publicationPlot = resize((width) => PublicationPlot(width));
 
 ---
 
-```js
-  const booksGroupedByAuthor =  rollups(
-    books.filter(hasRating), 
-    authorScore,
-    d => d["Author"]) // .map(([key, value]) => value)
-
-  const authorsDomain = d3.sort(booksGroupedByAuthor, d => -d[1]).filter(d => d[1] > 6).map(d => d[0])//.slice(0, 50)
-  // console.log(booksGroupedByAuthor, authorsDomain, authorsDomain.length)
-    
-```
-
-```js
- const authorScore = v => v.length * d3.median(v, myRating) + v.length * 1.5 
-```
-
 ## Favorite Authors
 
 ```js
-Plot.plot({
-  width: 900,
-  marginBottom: 150,
-  x: {
-    //tickFormat: (d, i) => i % 2 === 0 ? d : '',
-    tickRotate: 90,
-    label: 'Author name',
-    // domain: d3.sort(books.filter(hasRating), myRating).map(d => d["Author"]).reverse(), // sort by one rating
-    //domain: books.filter(hasRating).map(d => d["Author"]),
-    domain: authorsDomain,
-    tickSize: 4,
-    // filter: d => { console.log(d); return 1}
-    // limit: 20
-  },
-  y: {
-    label: '# of books by same author colored by rating',
-    ticks: 8,
+const booksGroupedByAuthor = rollups(
+  books.filter(hasRating),
+  authorScore,
+  (d) => d["Author"]
+); // .map(([key, value]) => value)
 
-  },
-  color: {
-    //legend: "swatches",
-    legend: true,
-    type: 'ordinal',
-    scheme: 'ylorrd',
-    domain: range(1, 6),
-  },
-  marks: [
-    Plot.barY(books.filter(hasRating), 
-          Plot.groupX(
-            {
-              y: "count",
-             // sort: { y: 'x', reduce: d => { console.log('sort', d)}}
-
-            //filter: g => {console.log('filter', g); return g.length > 1},
-
-            // kind of works but not for authors with different book ratings
-              // filter: 
-               
-              //   (D) => { 
-              //      console.log('filter', D);
-              //      const books = D.flat()
-              //      console.log(books)
-              //      const weightedAvg = books.length * d3.median(books, myRating)
-              //      return weightedAvg > 4
-              //   }
-              // ,
-
-            },
-            {
-              x: "Author",
-              fill: myRating,
-              // z: myRating,
-              // y: d => parseInt(d["Number of Pages"]),
-              title: (d) => `${d["Author"]} \n ${d["Title"]} \n rate: ${ratingStars(d)}\n\n`,
-              //sort: {x: g => { console.log('sort', g); return g.length }},//d3.median(g, d => myRating(d))}},
-              // sort: d => { console.log(d);},
-              // sort: {x: 'y', reduce: "median", order: "descending", limit: 50},
-              sort: {
-                x: '-data',
-                reduce: D => authorScore(D.flat())
-                  
-              },
-              // filter: {
-              //   x: 'x',
-              //   reduce: (D) => { 
-              //      console.log('filter', D);
-              //      const books = D.flat()
-              //      const weightedAvg = books.length * d3.median(books, myRating)
-              //      return weightedAvg > 3 
-              //   }
-              // },
-
-              tip: true,
-              //filter: d => {console.log('filter', d); return true}
-
-            }),
-            
-    ),
-    Plot.ruleY([0])
-  ],
-})
+const authorsDomain = d3
+  .sort(booksGroupedByAuthor, (d) => -d[1])
+  .filter((d) => d[1] > 6)
+  .map((d) => d[0]); //.slice(0, 50)
 ```
+
+```js
+const authorScore = (v) => v.length * d3.median(v, myRating) + v.length * 1.5;
+```
+
+```js
+const AuthorsPlot = (myWidth) =>
+  Plot.plot({
+    width: myWidth,
+    marginBottom: 150,
+    x: {
+      tickFormat: (d, i) => (myWidth > 500 || i % 2 === 0 ? d : ""),
+      tickRotate: 90,
+      label: "Author name",
+      domain: authorsDomain,
+      tickSize: 4,
+    },
+    y: {
+      label: "# of books by same author colored by rating",
+      ticks: 8,
+    },
+    color: {
+      //legend: "swatches",
+      legend: true,
+      type: "ordinal",
+      scheme: "ylorrd",
+      domain: range(1, 6),
+    },
+    marks: [
+      Plot.barY(
+        books.filter(hasRating),
+        Plot.groupX(
+          {
+            y: "count",
+          },
+          {
+            x: "Author",
+            fill: myRating,
+            title: (d) =>
+              `${d["Author"]} \n ${d["Title"]} \n rate: ${ratingStars(d)}\n\n`,
+            sort: {
+              x: "-data",
+              reduce: (D) => authorScore(D.flat()),
+            },
+
+            tip: true,
+          }
+        )
+      ),
+      Plot.ruleY([0]),
+    ],
+  });
+```
+
+```js
+const authorsPlot = resize((width) => AuthorsPlot(width));
+```
+
+<div class="w-full">${authorsPlot}</div>
