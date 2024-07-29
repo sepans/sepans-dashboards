@@ -25,6 +25,7 @@ import {
   fictionNonFiction,
 } from "./utils/bookUtils.js";
 import { range, rollups, min, max, mean, extent } from "npm:d3-array";
+import { utcFormat } from "npm:d3-time-format";
 ```
 
 ```js
@@ -92,12 +93,14 @@ view(
     format: {
       "My Rating": (d) => ratingStars(d, (d) => d),
       "Year Published": (d) => new Date(d).getFullYear(),
+      "Date Read": (d) => utcFormat("%b %y")(new Date(d)),
     },
     header: {
       "Number of Pages": "# pages",
       lc_class_name: "LOC class",
       "Average Rating": "Avg. rate",
       "Year Published": "Pub. year",
+      "Date Read": "Month read",
     },
   })
 );
