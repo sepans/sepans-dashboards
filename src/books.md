@@ -209,8 +209,11 @@ const TimelinePlot = (myWidth) => {
       columns: 3,
       scheme: "viridis",
       domain: sortedClasses,
+      // The fallback has to sit inside the interpolation: a template literal is
+      // always a truthy string, so a trailing `|| "N/A"` could never fire and
+      // unmapped classes rendered as the literal text "undefined (N/A)".
       tickFormat: (d) =>
-        `${LocCategoryMap[d]?.substring(0, 70)} (${d})` || "N/A",
+        `${LocCategoryMap[d]?.substring(0, 70) ?? "N/A"} (${d})`,
     },
   });
 
