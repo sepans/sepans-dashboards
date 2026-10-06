@@ -4,7 +4,7 @@ title: Goodread books
 
 # books
 
-I scraped the data from Goodreads.com. Goodreads no longer has an API and its data export no longer includes the book data. The data is augmented using the OpenLibrary API to add more semantic information.
+Scraped the data from my Goodreads.com list. The data is augmented using the OpenLibrary API to add more semantic information.
 
 ```js
 const books = FileAttachment("./data/books.json").json();
@@ -88,8 +88,99 @@ const favYearInput = view(
 ## List of all books
 
 ```js
+// Options are derived from the data so they stay in step with it. Classes are
+// ordered non-fiction first then fiction, matching the LoC timeline below.
+const bookClasses = Array.from(new Set(books.map((d) => d["lc_class"])));
+const classOptions = d3
+  .sort(bookClasses.filter((c) => !c.startsWith("P")))
+  .concat(d3.sort(bookClasses.filter((c) => c.startsWith("P"))));
+
+// Descending, so the highest rating leads as it does in the Favorite Authors
+// legend. 0 means the book has no rating.
+const ratingOptions = d3.sort(
+  new Set(books.map((d) => myRating(d) || 0)),
+  (a, b) => b - a
+);
+
+// Some category names run very long (PT is 280-odd characters, listing every
+// Germanic and Scandinavian literature), so they are clipped to keep the
+// options legible.
+const classLabel = (c) => {
+  const name = LocCategoryMap[c] ?? "N/A";
+  return `${c} — ${name.length > 44 ? `${name.slice(0, 44)}…` : name}`;
+};
+const ratingLabel = (r) => (r === 0 ? "unrated" : "★".repeat(r));
+```
+
+```js
+const searchFilter = view(
+  Inputs.text({
+    label: "Search",
+    placeholder: "regex on title or author",
+    width: 360,
+  })
+);
+```
+
+```js
+const classFilter = view(
+  Inputs.select(classOptions, {
+    label: "LoC class",
+    multiple: 6,
+    format: classLabel,
+  })
+);
+```
+
+```js
+const typeFilter = view(
+  Inputs.radio(["All", "Fiction", "Non-fiction", "Unknown"], {
+    label: "Type",
+    value: "All",
+  })
+);
+```
+
+```js
+const ratingFilter = view(
+  Inputs.checkbox(ratingOptions, {
+    label: "My rating",
+    format: ratingLabel,
+  })
+);
+```
+
+```js
+// A half-typed regex like "(" or "[" is a syntax error, which would throw on
+// every keystroke. Fall back to matching the query literally so the table
+// degrades to a plain substring search instead of blanking out.
+const searchMatches = (query) => {
+  if (!query) return () => true;
+  let re;
+  try {
+    re = new RegExp(query, "i");
+  } catch {
+    re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+  }
+  return (d) => re.test(d["Title"] ?? "") || re.test(d["Author"] ?? "");
+};
+
+// An empty multi-select means "no constraint" rather than "match nothing",
+// so each filter is skipped until something is chosen.
+const filteredBooks = books
+  .filter(searchMatches(searchFilter))
+  .filter((d) => !classFilter.length || classFilter.includes(d["lc_class"]))
+  .filter((d) => typeFilter === "All" || fictionNonFiction(d) === typeFilter)
+  .filter(
+    (d) => !ratingFilter.length || ratingFilter.includes(myRating(d) || 0)
+  );
+```
+
+<sm>Showing ${filteredBooks.length.toLocaleString()} of ${books.length.toLocaleString()} books.</sm>
+
+```js
 view(
-  Inputs.table(books, {
+  Inputs.table(filteredBooks, {
     columns: [
       "Title",
       "Author",
@@ -111,8 +202,14 @@ view(
     },
     format: {
       "My Rating": (d) => ratingStars(d, (d) => d),
-      "Year Published": (d) => new Date(d).getFullYear(),
-      "Date Read": (d) => utcFormat("%b %y")(new Date(d)),
+      // Two books carry a date_pub of "unknown", which formatted as "NaN".
+      "Year Published": (d) => {
+        const year = new Date(d).getFullYear();
+        return isNaN(year) ? "—" : year;
+      },
+      // A book can be rated without ever being dated, which used to format as
+      // " NaN".
+      "Date Read": (d) => (d ? utcFormat("%b %y")(new Date(d)) : "—"),
     },
     header: {
       "Number of Pages": "# pages",
@@ -236,9 +333,6 @@ const timelinePlot = resize((width) => TimelinePlot(width));
 
 ## Books by Library of Congress classification over time
 
-Books read binned based on the Library of Congress classification category over time. Each row is one catagory (in case of fictions, sub category).
-
-<sm>LoC classification number is what being used in libraries to sort books and unlike ISBN that is just a code is assigned based on the book content.</sm>
 
 <br>
 
