@@ -29,6 +29,13 @@ import { utcFormat } from "npm:d3-time-format";
 ```
 
 ```js
+// Two anchors from the viridis scheme used by the LoC timeline below, so the
+// rating comparison shares its palette. interpolateViridis(0.75) and (1).
+const viridisGreen = "#5ec962";
+const viridisYellow = "#fde725";
+```
+
+```js
 // display(books[0]);
 ```
 
@@ -63,7 +70,7 @@ const favYearInput = view(
 );
 ```
 
-<div style="overflow: scroll; max-height: 430px">
+<div class="recent-favorites" style="overflow: scroll; max-height: 430px">
     ${books.filter(d => myRating(d) === 5).filter(coverImage).filter(readAfter(favYearInput - 1)).map(book => 
         html`<a href="${book.url}" target="_blank">
             <img src="${coverImage(book)}" 
@@ -83,15 +90,22 @@ view(
     columns: [
       "Title",
       "Author",
-      "Number of Pages",
       "My Rating",
       "Average Rating",
       "Date Read",
       "locNumber",
       "Year Published",
       "lc_class_name",
-      
+      "Number of Pages",
     ],
+    width: {
+      // Title runs to 131 characters at the extreme, but the median is 20 and
+      // the 75th percentile 34, so this reads in full for most of the list.
+      Title: 300,
+      Author: 180,
+      // Holds five stars plus the header without collapsing on narrow screens.
+      "My Rating": 90,
+    },
     format: {
       "My Rating": (d) => ratingStars(d, (d) => d),
       "Year Published": (d) => new Date(d).getFullYear(),
@@ -261,7 +275,10 @@ const RatingPlot = (myWidth) =>
         x1: (d) => d["Title"],
         y2: ratingDiff,
         y1: 0,
-        stroke: (d) => (ratingDiff(d) < 0 ? "red" : "green"),
+        // Green and yellow sampled from viridis, matching the LoC timeline's
+        // scheme, rather than red/green (which is hard to tell apart for the
+        // most common forms of colour blindness).
+        stroke: (d) => (ratingDiff(d) < 0 ? viridisYellow : viridisGreen),
         markerEnd: "arrow",
         strokeWidth: 1,
         thresholds: 10,
@@ -427,8 +444,13 @@ const AuthorsPlot = (myWidth) =>
       //legend: "swatches",
       legend: true,
       type: "ordinal",
-      scheme: "ylorrd",
-      domain: range(1, 6),
+      // Ratings only ever run 2-5 in the data; range(1, 6) spent a colour on a
+      // 1-star rating that no book has.
+      domain: range(2, 6),
+      // Four equally spaced samples from the green-to-yellow end of viridis
+      // (t = 0.65, 0.767, 0.883, 1). The full scheme starts at a very dark
+      // purple, which reads as muddy on the light theme.
+      range: ["#2fb47c", "#67cc5c", "#b2dd2d", "#fde725"],
     },
     marks: [
       Plot.barY(

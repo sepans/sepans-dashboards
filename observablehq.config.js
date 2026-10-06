@@ -17,16 +17,22 @@ export default {
   // ],
 
   // Content to add to the head of the page, e.g. for a favicon:
-  // head: '<link rel="icon" href="favicon.png" type="image/png" sizes="32x32">',
+  head: '<link rel="icon" href="sepans-logo.png" type="image/png" sizes="66x64">',
 
   // The path to the source root.
   root: "src",
+
+  // Custom stylesheet; re-imports the default theme, then overrides fonts and
+  // adds page-specific styles. See src/style.css.
+  style: "style.css",
+
+  // There is only one page, so the sidebar has nothing to navigate to.
+  sidebar: false,
 
   // Some additional configuration options and their defaults:
   // theme: "default", // try "light", "dark", "slate", etc.
   // header: "", // what to show in the header (HTML)
   // footer: "Built with Observable.", // what to show in the footer (HTML)
-  // sidebar: true, // whether to show the sidebar
   // toc: true, // whether to show the table of contents
   // pager: true, // whether to show previous & next links in the footer
   // output: "dist", // path to the output root for build

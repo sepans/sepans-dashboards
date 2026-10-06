@@ -1,0 +1,52 @@
+/* Custom stylesheet, wired up via the `style` option in observablehq.config.js.
+   Setting `style` replaces the default theme, so re-import it first and then
+   override. */
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css") (prefers-color-scheme: light);
+@import url("observablehq:theme-near-midnight.css") (prefers-color-scheme: dark);
+
+/* Framework sets body copy and headings in --serif. Point --serif at the
+   theme's own --sans-serif stack, which is already a well-supported list of
+   system fonts (-apple-system, Segoe UI, Roboto, Helvetica, Arial, …), so the
+   whole page renders sans without hard-coding a font or adding a web font. */
+:root {
+  --serif: var(--sans-serif);
+}
+
+/* Trim the type scale a little. Framework sizes h1-h3 in em off the body, so
+   setting the body size scales the headings with it; the table of contents and
+   the Inputs widgets are set in absolute px and need their own nudge. */
+body {
+  font-size: 15px;
+}
+
+#observablehq-toc {
+  font-size: 13px;
+}
+
+/* Inputs set `font: 13px/1.2` on the form root and the table, labels and
+   controls all inherit from it, so one override covers them. */
+form[class^="inputs-"] {
+  font-size: 12px;
+}
+
+/* Inputs.table renders with `table-layout: fixed` and sizes the table to its
+   container, so the explicit Title/Author widths in books.md starve the seven
+   remaining columns on narrower screens (at a 756px container they collapse to
+   32px each and clip, with nothing to scroll). Give the table a floor instead
+   and let the wrapper, which is already `overflow-x: auto`, scroll.
+   The `inputs-xxxxxx` class carries a generated hash, hence the prefix match. */
+form[class^="inputs-"][class*="-table"] > table {
+  min-width: 1120px;
+}
+
+/* Recent favorites: desaturate the covers so the strip reads as near
+   monochrome, and restore full colour on hover. */
+.recent-favorites img {
+  filter: saturate(0.5);
+  transition: filter 150ms ease-in-out;
+}
+
+.recent-favorites img:hover {
+  filter: none;
+}
