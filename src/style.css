@@ -40,6 +40,15 @@ form[class^="inputs-"][class*="-table"] > table {
   min-width: 1120px;
 }
 
+/* The LoC class filter's options carry a class code plus a category name, which
+   does not fit the 240px default input width. The Inputs form is a flex
+   container and the select is set to width: 100%, so it needs flex-shrink
+   disabled as well or it just compresses back. */
+form[class^="inputs-"] select[multiple] {
+  width: 380px;
+  flex: 0 0 auto;
+}
+
 /* Recent favorites: desaturate the covers so the strip reads as near
    monochrome, and restore full colour on hover. */
 .recent-favorites img {
