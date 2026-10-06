@@ -29,6 +29,16 @@ import { utcFormat } from "npm:d3-time-format";
 ```
 
 ```js
+// Shared with the Favorite Authors scale below: viridis green at t = 0.75, and
+// a lightened form of its blue at t = 0.25. The blue is lightened because
+// #3b528b only reaches 2.2:1 against the dark theme background; at this
+// lightness it clears 3:1 on both themes, which neither the original nor the
+// paler variants manage.
+const viridisGreen = "#5ec962";
+const lightBlue = "#658ced";
+```
+
+```js
 // display(books[0]);
 ```
 
@@ -63,7 +73,7 @@ const favYearInput = view(
 );
 ```
 
-<div style="overflow: scroll; max-height: 430px">
+<div class="recent-favorites" style="overflow: scroll; max-height: 430px">
     ${books.filter(d => myRating(d) === 5).filter(coverImage).filter(readAfter(favYearInput - 1)).map(book => 
         html`<a href="${book.url}" target="_blank">
             <img src="${coverImage(book)}" 
@@ -83,15 +93,22 @@ view(
     columns: [
       "Title",
       "Author",
-      "Number of Pages",
       "My Rating",
       "Average Rating",
       "Date Read",
       "locNumber",
       "Year Published",
       "lc_class_name",
-      
+      "Number of Pages",
     ],
+    width: {
+      // Title runs to 131 characters at the extreme, but the median is 20 and
+      // the 75th percentile 34, so this reads in full for most of the list.
+      Title: 300,
+      Author: 180,
+      // Holds five stars plus the header without collapsing on narrow screens.
+      "My Rating": 90,
+    },
     format: {
       "My Rating": (d) => ratingStars(d, (d) => d),
       "Year Published": (d) => new Date(d).getFullYear(),
@@ -195,8 +212,11 @@ const TimelinePlot = (myWidth) => {
       columns: 3,
       scheme: "viridis",
       domain: sortedClasses,
+      // The fallback has to sit inside the interpolation: a template literal is
+      // always a truthy string, so a trailing `|| "N/A"` could never fire and
+      // unmapped classes rendered as the literal text "undefined (N/A)".
       tickFormat: (d) =>
-        `${LocCategoryMap[d]?.substring(0, 70)} (${d})` || "N/A",
+        `${LocCategoryMap[d]?.substring(0, 70) ?? "N/A"} (${d})`,
     },
   });
 
@@ -261,7 +281,10 @@ const RatingPlot = (myWidth) =>
         x1: (d) => d["Title"],
         y2: ratingDiff,
         y1: 0,
-        stroke: (d) => (ratingDiff(d) < 0 ? "red" : "green"),
+        // Blue and green from viridis, matching the Favorite Authors scale,
+        // rather than red/green (the pairing most affected by common forms of
+        // colour blindness).
+        stroke: (d) => (ratingDiff(d) < 0 ? lightBlue : viridisGreen),
         markerEnd: "arrow",
         strokeWidth: 1,
         thresholds: 10,
@@ -374,7 +397,9 @@ const PublicationPlot = (myWidth) =>
     color: {
       legend: true,
       domain: ["Fiction", "Non-fiction", "Unknown"],
-      range: ["blue", "green", "gray"],
+      // Same blue and green as the rating scales. Plain "blue" was close to
+      // unreadable on the dark theme.
+      range: [lightBlue, viridisGreen, "gray"],
       title: "is fiction?",
     },
   });
@@ -427,8 +452,18 @@ const AuthorsPlot = (myWidth) =>
       //legend: "swatches",
       legend: true,
       type: "ordinal",
-      scheme: "ylorrd",
-      domain: range(1, 6),
+      // Ratings only ever run 2-5 in the data, so a 1-star slot would be dead.
+      // Descending so the legend leads with 5 stars.
+      domain: range(5, 1, -1),
+      // Four equally spaced samples from the middle 50% of viridis
+      // (t = 0.75, 0.583, 0.417, 0.25), running green through teal to blue.
+      // This skips the near-black purple at the bottom of the scheme and the
+      // intense yellow at the top. Reversed to match the descending domain, so
+      // 5 stars stays green.
+      range: ["#5ec962", "#20a486", "#287c8e", "#3b528b"],
+      // Filled stars only; the legend is a key, so the unfilled remainder that
+      // ratingStars adds is just noise here.
+      tickFormat: (d) => "★".repeat(d),
     },
     marks: [
       Plot.barY(
