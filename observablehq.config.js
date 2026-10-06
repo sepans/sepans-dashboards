@@ -17,7 +17,7 @@ export default {
   // ],
 
   // Content to add to the head of the page, e.g. for a favicon:
-  head: '<link rel="icon" href="observable.png" type="image/png" sizes="32x32">',
+  // head: '<link rel="icon" href="favicon.png" type="image/png" sizes="32x32">',
 
   // The path to the source root.
   root: "src",
@@ -33,5 +33,6 @@ export default {
   // search: true, // activate search
   // linkify: true, // convert URLs in Markdown to links
   // typographer: false, // smart quotes and other typographic improvements
-  // cleanUrls: true, // drop .html from URLs
+  // preserveIndex: false, // drop /index from URLs (replaces cleanUrls)
+  // preserveExtension: false, // drop .html from URLs (replaces cleanUrls)
 };

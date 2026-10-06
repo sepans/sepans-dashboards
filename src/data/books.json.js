@@ -50,22 +50,60 @@ const extractIsbn = (d) => d?.ISBN?.replace(/[\=]*\"/g,'')
 const extractLICClass = (code) => code?.match(/(^[A-Z]+)+/i)?.[0] || 'N/A'
 const dateRead = d => new Date(d["Date Read"] || d["Date Added"])
 
+// OpenLibrary rate-limits hard, so requests are throttled rather than fired
+// all at once, and 429s are retried with exponential backoff.
+const CONCURRENCY = 5
+const MAX_RETRIES = 5
+const REQUEST_TIMEOUT_MS = 15000
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+class HttpError extends Error {
+  constructor(response, url) {
+    super(`${response.status} ${response.statusText} for ${url}`)
+    this.status = response.status
+  }
+}
+
+// Network failures and aborted requests are transient; so are 429 and 5xx.
+// Any other HTTP error means the request itself is wrong, so don't retry it.
+const isTransient = (error) =>
+  !(error instanceof HttpError) || error.status === 429 || error.status >= 500
+
+const fetchJson = async (url) => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const response = await fetch(url, {signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)})
+      if (!response.ok) throw new HttpError(response, url)
+      return await response.json()
+    } catch (error) {
+      if (!isTransient(error) || attempt >= MAX_RETRIES) throw error
+      const delay = 2 ** attempt * 1000 + Math.random() * 1000
+      console.warn(`${error.message}; retry ${attempt + 1}/${MAX_RETRIES} in ${Math.round(delay)}ms`)
+      await sleep(delay)
+    }
+  }
+}
+
+// Map over items with at most `limit` requests in flight, preserving order.
+const mapThrottled = async (items, limit, task) => {
+  const results = new Array(items.length)
+  let next = 0
+  const worker = async () => {
+    for (let i = next++; i < items.length; i = next++) {
+      results[i] = await task(items[i])
+    }
+  }
+  await Promise.all(Array.from({length: Math.min(limit, items.length)}, worker))
+  return results
+}
 
 
-let olBookData
-try {
 
-  olBookData = await Promise.all(goodreadsData.map(async(grData, i) => {
+const olBookData = await mapThrottled(goodreadsData, CONCURRENCY, async (grData) => {
       const isbn = extractIsbn(grData)
-    
-      const olResponse = await fetch(openLibraryApi(isbn))
-      
-      if (!olResponse.ok) {
-        console.log(olResponse);
-        throw new Error("unable to fetch");
-      }
 
-      const openLibraryDataJson = await olResponse.json()
+      const openLibraryDataJson = await fetchJson(openLibraryApi(isbn))
       //console.log(openLibraryDataJson)
       const isbnKeys = Object.keys(openLibraryDataJson)
       const openLibraryData = isbnKeys.length ? openLibraryDataJson[isbnKeys[0]] : {}
@@ -96,10 +134,6 @@ try {
 
      
       return {...grData, ...extracted, ...openLibraryData}
-    }))
-}
-catch(e) {
-  console.log('Exception!!!!! ', e)
-}
+    })
 
 process.stdout.write(JSON.stringify(olBookData))
