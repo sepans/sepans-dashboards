@@ -29,10 +29,13 @@ import { utcFormat } from "npm:d3-time-format";
 ```
 
 ```js
-// Two anchors from the viridis scheme used by the LoC timeline below, so the
-// rating comparison shares its palette. interpolateViridis(0.75) and (1).
+// Shared with the Favorite Authors scale below: viridis green at t = 0.75, and
+// a lightened form of its blue at t = 0.25. The blue is lightened because
+// #3b528b only reaches 2.2:1 against the dark theme background; at this
+// lightness it clears 3:1 on both themes, which neither the original nor the
+// paler variants manage.
 const viridisGreen = "#5ec962";
-const viridisYellow = "#fde725";
+const lightBlue = "#658ced";
 ```
 
 ```js
@@ -278,10 +281,10 @@ const RatingPlot = (myWidth) =>
         x1: (d) => d["Title"],
         y2: ratingDiff,
         y1: 0,
-        // Green and yellow sampled from viridis, matching the LoC timeline's
-        // scheme, rather than red/green (which is hard to tell apart for the
-        // most common forms of colour blindness).
-        stroke: (d) => (ratingDiff(d) < 0 ? viridisYellow : viridisGreen),
+        // Blue and green from viridis, matching the Favorite Authors scale,
+        // rather than red/green (the pairing most affected by common forms of
+        // colour blindness).
+        stroke: (d) => (ratingDiff(d) < 0 ? lightBlue : viridisGreen),
         markerEnd: "arrow",
         strokeWidth: 1,
         thresholds: 10,
@@ -447,13 +450,18 @@ const AuthorsPlot = (myWidth) =>
       //legend: "swatches",
       legend: true,
       type: "ordinal",
-      // Ratings only ever run 2-5 in the data; range(1, 6) spent a colour on a
-      // 1-star rating that no book has.
-      domain: range(2, 6),
-      // Four equally spaced samples from the green-to-yellow end of viridis
-      // (t = 0.65, 0.767, 0.883, 1). The full scheme starts at a very dark
-      // purple, which reads as muddy on the light theme.
-      range: ["#2fb47c", "#67cc5c", "#b2dd2d", "#fde725"],
+      // Ratings only ever run 2-5 in the data, so a 1-star slot would be dead.
+      // Descending so the legend leads with 5 stars.
+      domain: range(5, 1, -1),
+      // Four equally spaced samples from the middle 50% of viridis
+      // (t = 0.75, 0.583, 0.417, 0.25), running green through teal to blue.
+      // This skips the near-black purple at the bottom of the scheme and the
+      // intense yellow at the top. Reversed to match the descending domain, so
+      // 5 stars stays green.
+      range: ["#5ec962", "#20a486", "#287c8e", "#3b528b"],
+      // Filled stars only; the legend is a key, so the unfilled remainder that
+      // ratingStars adds is just noise here.
+      tickFormat: (d) => "★".repeat(d),
     },
     marks: [
       Plot.barY(
