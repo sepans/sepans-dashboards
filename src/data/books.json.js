@@ -41,6 +41,32 @@ goodreadsData = goodreadsData.map(item => {
   return newItem
 })
 
+// Goodreads records one read date per line, so a re-read arrives as
+// "Dec 08, 2023\nnot set [edit]" and an entry that was never dated arrives as
+// the literal "not set". new Date() cannot parse either, which silently gave
+// those books a null date_read and dropped them out of every date-based plot.
+// Keep the first real date and discard the rest.
+const READ_DATE = /[A-Z][a-z]{2} \d{1,2}, \d{4}|[A-Z][a-z]{2} \d{4}/
+const firstReadDate = (value) => value?.match(READ_DATE)?.[0] ?? ""
+
+goodreadsData = goodreadsData.map((item) => ({
+  ...item,
+  "Date Read": firstReadDate(item["Date Read"]),
+}))
+
+// The scrape reads the whole my-books table, which covers every shelf, so it
+// also picks up "to read" entries. Those have neither a read date nor a
+// rating. Dropping them here, before the OpenLibrary lookup, keeps them out of
+// the dataset and saves a request each. A book that is rated but undated, or
+// dated but unrated, still counts as read.
+const isUnread = (d) => !d["Date Read"] && !parseInt(d["My Rating"])
+const unread = goodreadsData.filter(isUnread)
+goodreadsData = goodreadsData.filter((d) => !isUnread(d))
+
+// stderr, so it shows in the build log without corrupting the JSON on stdout.
+console.warn(
+  `skipping ${unread.length} unread books: ${unread.map((d) => d["Title"]).join("; ")}`
+)
 
 const noLocMap = new Map(noLocList.map(e => [e["title"].toLowerCase(), e["loc"]]))
 // console.log(noLocMap)
