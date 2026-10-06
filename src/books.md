@@ -397,7 +397,9 @@ const PublicationPlot = (myWidth) =>
     color: {
       legend: true,
       domain: ["Fiction", "Non-fiction", "Unknown"],
-      range: ["blue", "green", "gray"],
+      // Same blue and green as the rating scales. Plain "blue" was close to
+      // unreadable on the dark theme.
+      range: [lightBlue, viridisGreen, "gray"],
       title: "is fiction?",
     },
   });
